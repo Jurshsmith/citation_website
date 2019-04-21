@@ -41,3 +41,7 @@ border-radius: 6px;
 input {
     border-radius: 4px;
 }
+
+a {
+    cursor: pointer;
+}
