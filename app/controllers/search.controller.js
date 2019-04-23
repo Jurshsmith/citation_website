@@ -50,19 +50,19 @@ module.exports = {
                             message: "multiple choices"
                         }
                         return res.status(200).json({
-                            mulitiple: true,
+                            multiple: true,
                             items: {...translated.items}
                         });
                     }
                     case "FAILED": {
                         output = { 
-                            mulitiple: false,
+                            multiple: false,
                             message: `Error in citing ${searchEntry}`}
                         break;
                     }
                     default: {
                         output = { 
-                            mulitiple: false,
+                            multiple: false,
                             message: `Error in citing ${searchEntry}`}
                         break;
                     }
