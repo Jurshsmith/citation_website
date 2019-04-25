@@ -1,13 +1,14 @@
 const ZoteroClient = require('zotero-translation-client');
 const Cite = require('citation-js');
 
+CSLTemplates = ["apa", "vancouver", "harvard1"];
 
 const zConfig = {
     persist: false,
     translateURL: require('./../../config/API.config').translateURL
 }
 
-const formatOutput = (citation, format='html', template='apa', lang="en-US") => {
+const formatOutput = (citation, format='html', template=CSLTemplates[0], lang="en-US") => {
     return citation.format('bibliography', {
         format,
         template,
@@ -22,6 +23,7 @@ const isLikeURL = identifier => {
 
 module.exports = {
     handleSearch: async (req, res, next) => {
+        //evaluate format here
         try {
             let translationClient = new ZoteroClient(zConfig);
             const { query: { searchEntry }} = req;
@@ -32,13 +34,44 @@ module.exports = {
                 citation = await new Cite(EntryInfo);
                 output = await formatOutput(citation);
             } else {
-                const { items: [ EntryInfo ] } = await translationClient.translateIdentifier(searchEntry);
-                citation = await new Cite(EntryInfo);
-                output = await formatOutput(citation);
+                const translated = await translationClient.translateIdentifier(searchEntry);
+                // citation = await new Cite(EntryInfo);
+                // output = await formatOutput(citation);
+                switch(translated.result){
+                    case "COMPLETE": {
+                        const { items: [ EntryInfo ]} = translated;
+                        //if no item respond with no item
+                        citation = await new Cite(EntryInfo);
+                        output = await formatOutput(citation);
+                        break;
+                    }
+                    case "MULTIPLE_CHOICES":{
+                        output = {
+                            message: "multiple choices"
+                        }
+                        return res.status(200).json({
+                            multiple: true,
+                            items: {...translated.items}
+                        });
+                    }
+                    case "FAILED": {
+                        output = { 
+                            multiple: false,
+                            message: `Error in citing ${searchEntry}`}
+                        break;
+                    }
+                    default: {
+                        output = { 
+                            multiple: false,
+                            message: `Error in citing ${searchEntry}`}
+                        break;
+                    }
+                }
+               
             }
 
-            res.status(200).send(output);
-            next()
+            return res.status(200).json({
+                output, multiple: false});
         } catch (error){
             console.log(error);
             next();
