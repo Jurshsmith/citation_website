@@ -27,24 +27,36 @@ module.exports = {
         try {
             let translationClient = new ZoteroClient(zConfig);
             const { query: { searchEntry }} = req;
-            let citation, output;
+            let citation, output, E;
 
             if (isLikeURL(searchEntry)){
                 const { items: [ EntryInfo ] } = await translationClient.translateUrl(searchEntry);
-                citation = await new Cite(EntryInfo);
+                console.log('EntryInfo: ',EntryInfo)
+
+                //cache E
+                E = EntryInfo;
+
+                let newInfo = require('./../helpers/parseForCSL.handler').computeCiteJson(EntryInfo);
+                citation = await new Cite([newInfo]);
                 output = await formatOutput(citation);
             } else {
                 const translated = await translationClient.translateIdentifier(searchEntry);
                 // citation = await new Cite(EntryInfo);
                 // output = await formatOutput(citation);
+                console.log('EntryInfo: ',translated)
                 switch(translated.result){
                     case "COMPLETE": {
                         const { items: [ EntryInfo ]} = translated;
                         //if no item respond with no item
+
+                        //cache E
+                        E = EntryInfo;
+
                         if (translated.items.length === 0){
                             return res.status(200).json({empty: true})
                         }
-                        citation = await new Cite(EntryInfo);
+                        let newInfo = require('./../helpers/parseForCSL.handler').computeCiteJson(EntryInfo);
+                        citation = await new Cite([newInfo]);
                         output = await formatOutput(citation);
                         break;
                     }
@@ -54,13 +66,15 @@ module.exports = {
                         }
                         return res.status(200).json({
                             multiple: true,
-                            items: {...translated.items}
+                            items: {...translated.items},
+                            _d: EntryInfo
                         });
                     }
                     case "FAILED": {
                         output = { 
                             multiple: false,
-                            message: `Error in citing ${searchEntry}`}
+                            message: `Error in citing ${searchEntry}`
+                        }
                         break;
                     }
                     default: {
@@ -74,7 +88,9 @@ module.exports = {
             }
 
             return res.status(200).json({
-                output, multiple: false});
+                output, multiple: false,
+                _d: E 
+            });
         } catch (error){
             console.log(error);
             next();
