@@ -73,7 +73,7 @@
             <button type="button" onClick="citate()" class="btn ml-3">
               Cite
             </button>
-            <div class="spinner"></div>
+            <div class="spinner display-none"></div>
           </div>
         </div>
       </div>
@@ -161,6 +161,13 @@
        
 
       });
+
+      function setLoading(truthy){
+        if(truthy){
+          return $('.spinner').removeClass('display-none');
+        }
+        return $('.spinner').addClass('display-none');
+      }
   
       function storeLocally(data, output){
         //get from storage first
@@ -177,7 +184,10 @@
         let currentMultipleData = {};
         console.log($("#searchEntry").val());
         const searchEntry = $("#searchEntry").val();
-  
+        
+        //sets loading true
+        setLoading(true);
+
         fetch(`/api/search?searchEntry=${searchEntry}`)
           .then(res => {
             console.log(res);
@@ -223,11 +233,12 @@
   
             }
   
+            setLoading(false);
             
           })
           .catch(error => {
             console.log(error);
-  
+            setLoading(false);
              //show error html with display none and all
           });
       }
