@@ -158,6 +158,15 @@
         prevData.forEach(data => {
           $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'));
         });
+
+
+        //add event listeners here
+        (() => {
+          $(".result").click(() => {
+            console.log("result clicked");
+          })
+        })();
+  
        
 
       });
@@ -168,7 +177,8 @@
         }
         return $('.spinner').addClass('display-none');
       }
-  
+
+
       function storeLocally(data, output){
         //get from storage first
         const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
