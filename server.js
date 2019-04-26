@@ -13,8 +13,8 @@ server.use(express.static(__dirname + '/client'));
 
 server.use('/api', require('./app/routes/search.route'));
 
-server.get('/*', function(req,res) {
-    res.sendFile(path.join(__dirname+'/client/index.html'));
+server.get('/:page', function(req,res) {
+    res.sendFile(path.join(__dirname+`/client/${req.params.page}.html`));
 });
 
 server.listen(PORT, () => {

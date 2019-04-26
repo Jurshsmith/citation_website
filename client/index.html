@@ -31,13 +31,13 @@
           >
             <ul class="navbar-nav ">
               <li class="nav-item">
-                <a class="nav-link" href="index.html">Home </a>
+                <a class="nav-link" href="/">Home </a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="about.html">About Us</a>
+                <a class="nav-link" href="/about">About Us</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="contact.html">Contact Us</a>
+                <a class="nav-link" href="/contact">Contact Us</a>
               </li>
             </ul>
           </div>
@@ -153,9 +153,10 @@
           //show html that it is an empty result      
 
           return;
-          }
+          } else {
 
-          if (data.multiple) {
+            //if not empty
+            if (data.multiple) {
             $(".overlay").removeClass("display-none");
             $(".multiple").removeClass("display-none");
 
@@ -175,6 +176,11 @@
               $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'))
 
             } 
+
+
+          }
+
+          
         })
         .catch(error => {
           console.log(error);
