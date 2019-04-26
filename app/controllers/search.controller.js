@@ -41,6 +41,9 @@ module.exports = {
                     case "COMPLETE": {
                         const { items: [ EntryInfo ]} = translated;
                         //if no item respond with no item
+                        if (translated.items.length === 0){
+                            return res.status(200).json({empty: true})
+                        }
                         citation = await new Cite(EntryInfo);
                         output = await formatOutput(citation);
                         break;
