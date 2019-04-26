@@ -132,68 +132,104 @@
     </footer>
   </body>
 
-  <script>
-    function citate() {
-      let currentMultipleData = {};
-      console.log($("#searchEntry").val());
-      const searchEntry = $("#searchEntry").val();
 
-      fetch(`/api/search?searchEntry=${searchEntry}`)
-        .then(res => {
-          console.log(res);
-          return res.json();
-        })
-        .then(data => {
-          console.log(data);
-
-
-
-          if (data.empty){
-
-          //show html that it is an empty result      
-
-          return;
-          } else {
-
-            //if not empty
-            if (data.multiple) {
-            $(".overlay").removeClass("display-none");
-            $(".multiple").removeClass("display-none");
-
-            const cList = $('.multiple-content');
-            $.each(data.items, i => {
-              const eachItem = $('<div/>')
-                  .addClass(`each-multi-item`)
-                  .html(
-                    `<h4 class=${"each-title"}>${data.items[i].title}</h4><p class=${"each-desc"}>${data.items[i].description}</p><span>${data.items[i].itemType}</span>`
-                  )
-                  .addClass(`call-${i}`)
-                  .appendTo(cList);
-              });
-            }
-
-            if (!data.multiple) {
-
-              //store in local storage
-              
-              $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'))
-
-            } 
-
-
-          }
-
-          
-        })
-        .catch(error => {
-          console.log(error);
-
-           //show error html with display none and all
-        });
-    }
-  </script>
 
   <script src="js/jquery-3.3.1.js"></script>
   <script src="js/Popper.js"></script>
   <script src="js/bootstrap.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+  <script>
+
+      $(document).ready(() => {
+        //get from storage first
+        const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+
+
+        prevData.forEach(data => {
+          $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'));
+        });
+       
+
+      });
+  
+      function storeLocally(data, output){
+        //get from storage first
+        const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+  
+        prevData.push({...data, output});
+  
+        //store in local storage
+        localStorage.setItem('cw_data', JSON.stringify(prevData));
+      }
+  
+  
+      function citate() {
+        let currentMultipleData = {};
+        console.log($("#searchEntry").val());
+        const searchEntry = $("#searchEntry").val();
+  
+        fetch(`/api/search?searchEntry=${searchEntry}`)
+          .then(res => {
+            console.log(res);
+            return res.json();
+          })
+          .then(data => {
+            console.log(data);
+  
+  
+  
+            if (data.empty){
+  
+            //show html that it is an empty result      
+  
+            return;
+            } else {
+  
+              //if not empty
+              if (data.multiple) {
+              $(".overlay").removeClass("display-none");
+              $(".multiple").removeClass("display-none");
+  
+              const cList = $('.multiple-content');
+              $.each(data.items, i => {
+                const eachItem = $('<div/>')
+                    .addClass(`each-multi-item`)
+                    .html(
+                      `<h4 class=${"each-title"}>${data.items[i].title}</h4><p class=${"each-desc"}>${data.items[i].description}</p><span>${data.items[i].itemType}</span>`
+                    )
+                    .addClass(`call-${i}`)
+                    .appendTo(cList);
+                });
+              }
+  
+              if (!data.multiple) {
+  
+                storeLocally(data._d, data.output);
+  
+                $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'))
+  
+              } 
+  
+  
+            }
+  
+            
+          })
+          .catch(error => {
+            console.log(error);
+  
+             //show error html with display none and all
+          });
+      }
+    </script>
 </html>
