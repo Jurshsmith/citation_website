@@ -30,6 +30,15 @@ $(document).ready(() => {
   let currentCitation;
 
   //all functions
+  function displayError(){
+    $('#error-div').removeClass('display-none');
+
+    setTimeout(() => {
+        $('#error-div').addClass('display-none');
+    }, 2400)
+  }
+
+
   function makeNewJson(id){
 
     if(id.split('-')[0] === "creators"){
@@ -241,7 +250,9 @@ $(document).ready(() => {
 
         if (data.empty){
 
-        //show html that it is an empty result      
+        //show html that it is an empty result  
+        displayError();
+        setLoading(false);    
 
         return;
         } else {
@@ -297,6 +308,7 @@ $(document).ready(() => {
       })
       .catch(error => {
         console.log(error);
+        displayError();
         setLoading(false);
          //show error html with display none and all
       });

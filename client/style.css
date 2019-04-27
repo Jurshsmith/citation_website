@@ -321,6 +321,7 @@ form {
   cursor: pointer;
 }
 
+
 .multiple {
   display: flex;
   justify-content: center;
@@ -353,4 +354,15 @@ form {
   z-index: 20;
 }
 
-
+#error-div {
+  background: #fd4213;
+  padding: 20px;
+  color: #fff;
+  text-align: center;
+  position: fixed;
+  top: 20px;
+  width: 60vw;
+  left: 20vw;
+  border-radius: 20px;
+  z-index: 20
+}
