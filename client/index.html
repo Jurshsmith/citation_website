@@ -85,12 +85,7 @@
           <div class="card-header">
             <h3>Citation results</h3>
           </div>
-          <div class="card-body results">
-            <div class="overlay display-none"></div>
-
-            <div class="multiple display-none">
-              <div class="multiple-content"></div>
-            </div>
+          <div class="card-body results"></div>
           </div>
         </div>
       </div>
@@ -130,6 +125,85 @@
         <p class="foot">2019 All Rights Reserved</p>
       </div>
     </footer>
+
+
+    <!-- absolute elements -->
+    <div class="j-overlay display-none"></div>
+
+    <div class="multiple display-none">
+        <div class="multiple-content">
+
+        </div>
+    </div>
+
+    <div class="edit-citation display-none">
+      
+    </div>
+
+
+
+
+
+
+
+  <button
+    type="button"
+    id="modalClick"
+    class="btn mt-5 "
+    data-toggle="modal"
+    data-target="#exampleModal"
+  >
+    Launch demo modal
+  </button>
+
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="exampleModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="exampleModalLabel"
+    aria-hidden="true"
+  >
+    <div class="modal-dialog " role="document">
+      <div class="modal-content text-center">
+        <div class="modal-header text-center">
+          <h5 class="modal-title ml-3" id="exampleModalLabel">
+            Select Your Book
+          </h5>
+          <button
+            id="modalC"
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="container">
+        <div class="modal-body">
+          <div class="multi row mb-3 align-content-center">
+            
+           <!-- template comes here -->
+            
+              
+          </div>
+        </div>
+         
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-dismiss="modal"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   </body>
 
 
@@ -151,25 +225,94 @@
   <script>
 
       $(document).ready(() => {
+        //CLEAR local storage -- dangerous
+        // localStorage.clear();
+
         //get from storage first
         const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
 
 
         prevData.forEach(data => {
-          $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'));
+          $('<div/>').html(`${data.output}`).appendTo($('.results'));
         });
 
 
         //add event listeners here
         (() => {
-          $(".result").click(() => {
-            console.log("result clicked");
-          })
+          //1
+          $(".result").click(function (e) {
+            // const id = $(this).html();
+            // console.log($(this).html());
+            // console.log(e);
+          });
+
+
+          //2
+          $(".j-overlay").click(() => {
+            //reset display none to default
+            //register all dynamic show and hide elements here
+            $(".edit-citation").addClass("display-none");
+            $(".multiple").addClass("display-none");
+            $(".j-overlay").addClass("display-none");
+
+          });
         })();
   
        
 
       });
+
+
+
+
+
+
+
+
+
+      //all functions
+      function editCitation(id){
+        console.log(id);
+
+        //show editable and alter data there
+        $('.j-overlay').removeClass('display-none');
+        $('.edit-citation').removeClass('display-none');
+
+        //get from storage first
+        const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+
+        console.log(prevData.filter(d => d.output === id));
+      }
+
+      function deleteCitation(id){
+        console.log(id);
+        //get from storage first
+        const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+
+        const newData = prevData.filter(d => d.key !== id);
+
+        updateData(newData);
+        
+
+      }
+
+
+
+      function updateData(data){
+
+        localStorage.setItem('cw_data', JSON.stringify(data));
+
+        $('.results').html("");
+        //get from storage first
+        const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+
+        prevData.forEach(data => {
+          $('<div/>').html(`${data.output}`).appendTo($('.results'));
+        });
+
+      }
+
+
 
       function setLoading(truthy){
         if(truthy){
@@ -177,6 +320,7 @@
         }
         return $('.spinner').addClass('display-none');
       }
+
 
 
       function storeLocally(data, output){
@@ -189,6 +333,19 @@
         localStorage.setItem('cw_data', JSON.stringify(prevData));
       }
   
+
+
+
+
+
+      function citateMulti(id){
+        console.log(id);
+        $("#modalC").click();
+        $("#searchEntry").val('');
+        $("#searchEntry").val(id);
+        citate();
+        
+      }
   
       function citate() {
         let currentMultipleData = {};
@@ -217,26 +374,45 @@
   
               //if not empty
               if (data.multiple) {
-              $(".overlay").removeClass("display-none");
-              $(".multiple").removeClass("display-none");
-  
-              const cList = $('.multiple-content');
+                $('#modalClick').click();
+              // $(".j-overlay").removeClass("display-none");
+              // $(".multiple").removeClass("display-none");
+              
+              const cList = $(".multi");
+              cList.html("");
               $.each(data.items, i => {
-                const eachItem = $('<div/>')
-                    .addClass(`each-multi-item`)
+
+
+                const eachItem = $(`<div onClick="citateMulti(${i})"/>`)
+                    .addClass(`col select-con`)
+                  
                     .html(
-                      `<h4 class=${"each-title"}>${data.items[i].title}</h4><p class=${"each-desc"}>${data.items[i].description}</p><span>${data.items[i].itemType}</span>`
+                      `<div class="modal-con">
+                    <div>
+                        <img src="./img/reading.jpg" width="100px" alt="">
+                    </div>
+                    <div>
+                        <h4 class="ml-4">${data.items[i].title}</h4>
+                        <p>${data.items[i].description}</p>
+                        <p>Type: ${data.items[i].itemType}</p>
+                    </div>
+                      
+                    </div>`
                     )
+                    
                     .addClass(`call-${i}`)
                     .appendTo(cList);
                 });
               }
   
               if (!data.multiple) {
+                let newOutput = `<div class="result">${data.output}
+                <button class="btn" id="edit-${data._d.key}" onClick="editCitation('${data._d.key}')">Edit</button>
+                <button class="btn" id="delete-${data._d.key}" onClick="deleteCitation('${data._d.key}')">Delete</button></div>`;
+
+                storeLocally(data._d, newOutput);
   
-                storeLocally(data._d, data.output);
-  
-                $('<div/>').html(`<div class="result">${data.output}</div>`).appendTo($('.results'))
+                $('<div/>').html(newOutput).appendTo($('.results'))
   
               } 
   

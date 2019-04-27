@@ -66,8 +66,7 @@ module.exports = {
                         }
                         return res.status(200).json({
                             multiple: true,
-                            items: {...translated.items},
-                            _d: EntryInfo
+                            items: {...translated.items}
                         });
                     }
                     case "FAILED": {
@@ -92,6 +91,7 @@ module.exports = {
                 _d: E 
             });
         } catch (error){
+            res.status(401).json({ error })
             console.log(error);
             next();
         }
