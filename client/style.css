@@ -289,6 +289,16 @@ a {
   animation: spinner 0.7s linear infinite;
 }
 
+form {
+  width: 90%;
+  align-content: center;
+}
+
+.form-class{
+  margin-left: 30px;
+}
+
+
 @keyframes spinner {
   to {
     transform: rotate(360deg);
