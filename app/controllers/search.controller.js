@@ -22,6 +22,20 @@ const isLikeURL = identifier => {
 
 
 module.exports = {
+    handleEdit: async (req, res) => {
+        const { json } = req.body;
+
+        let newInfo = require('./../helpers/parseForCSL.handler').computeCiteJson(req.body.json);
+        citation = await new Cite([newInfo]);
+        output = await formatOutput(citation);
+        console.log(json);
+        return res.status(200).json({
+            
+            ...json,
+            output,
+        });
+    },
+
     handleSearch: async (req, res, next) => {
         //evaluate format here
         try {

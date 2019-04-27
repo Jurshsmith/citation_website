@@ -6,6 +6,8 @@ const DefaultController = require('./../controllers/default.controller');
 
 router.get('/search', SearchController.handleSearch);
 
+router.post('/edit', SearchController.handleEdit)
+
 router.use('/*', DefaultController.sendDefaultResponse);
 
 

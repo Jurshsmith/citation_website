@@ -22,21 +22,45 @@ $(document).ready(() => {
 
       //2
       $("#searchEntry").on('keypress', e => e.which === 13 ? citate(): null);
-
-      
+    
     })();
-
-   
-
   });
 
 
-
+  let currentCitation;
 
   //all functions
+  function makeNewJson(id){
+
+    if(id.split('-')[0] === "creators"){
+        
+        let newCreators = [];
+        
+        let c = 0;
+        currentCitation["creators"].forEach(k => {
+            newCreators.push({
+                ...k,
+                [id.split('-')[2]]: parseInt(id.split('-')[1]) === c? $(`#${id}`)[0].value: k[id.split('-')[2]]
+            });
+            c++;
+        
+        })
+
+        return currentCitation = {
+            ...currentCitation,
+            "creators": newCreators
+        }
+    }
+
+    return currentCitation = {
+        ...currentCitation,
+        [id]: $(`#${id}`)[0].value
+    }
+  }
 
   function editCitation(id){
     console.log(id);
+    
     $("#editM").click();
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
@@ -44,7 +68,7 @@ $(document).ready(() => {
     //use current data as edit form
     console.log(prevData.filter(d => d.key === id));
 
-    const currentCitation = prevData.filter(d => d.key === id)[0];
+    currentCitation = prevData.filter(d => d.key === id)[0];
 
     const editForm = $(".edit-form");
 
@@ -57,16 +81,26 @@ $(document).ready(() => {
        if (blackListedKeys.filter(a => a === key).length === 0){
         switch(currentCitation[key].constructor){
             case Array: 
-                console.log("an array");
+                let c = 0;
                 currentCitation[key].forEach(k => {
+                    
                     $.each(k, l => {
                         if (k[l] !== "author"){
-                            const template = `<input type="text" class="form-control ${l}" 
+                            const hash = `creators-${c}-${l}`;
+                            const template = `<input 
+                            type="text" 
+                            id="${hash}"
+                            onkeyup="makeNewJson('${hash}')" 
+                            class="form-control ${l}" 
                             placeholder="${l}"
                             value="${k[l]}">`; 
                             $('<div class="form-group"/>').html(template).appendTo(editForm);
-                        }  
+                            
+                        }
+                          
                     });
+
+                    c++;
                     
                 });
                 break;
@@ -75,7 +109,10 @@ $(document).ready(() => {
                 break;
             case String:{
                 console.log("strings, yes!");
-                const template = `<input type="text" class="form-control" 
+                const template = `<input 
+                onkeyup="makeNewJson('${key}')"
+                type="text" 
+                class="form-control" 
                 id="${key}" 
                 placeholder="${key}"
                 value="${currentCitation[key]}">`; 
@@ -84,27 +121,37 @@ $(document).ready(() => {
             }
         }
        }
-
-
-
-        
-
-
     });
 
 
     
 
     (() => {
+        
         $(".edit-it").click(() => {
             //listen for edit events
             //and edit
-            console.log('Edit clicked');
-            console.log("id is ", id);
+
+            console.log(currentCitation);
+
+            (async () => {
+                const rawResponse = await fetch('/api/edit', {
+                  method: 'POST',
+                  headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({json: currentCitation})
+                });
+                const content = await rawResponse.json();
+                updateEdit(content);
+                $('#modal-2-closer').click();
+              })();
         });
     })(id)
   }
 
+//   localStorage.clear();
   function deleteCitation(id){
     console.log(id);
     //get from storage first
@@ -114,7 +161,7 @@ $(document).ready(() => {
   }
 
 
-
+// localStorage.clear()
   function updateData(data){
     localStorage.setItem('cw_data', JSON.stringify(data));
     $('.results').html("");
@@ -123,6 +170,26 @@ $(document).ready(() => {
     prevData.forEach(data => {
       $('<div/>').html(`${data.output}`).appendTo($('.results'));
     });
+  }
+
+  function updateEdit(data){
+    const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
+    const newData = prevData.map(d => {
+        if (d.key === data.key){
+            let newOutput = `<div class="result">${data.output}
+            <span style="padding: 6px; cursor: pointer" id="edit-${data.key}" onClick="editCitation('${data.key}')"><i class="ion-edit icon"></i></span> 
+            <span style="padding: 6px; cursor: pointer" id="delete-${data.key}" onClick="deleteCitation('${data.key}')"><i class="ion-android-delete icon"></i></span>`;
+            return {
+                ...data,
+                output: newOutput
+            }
+        }
+        return d
+    });
+
+    
+
+    updateData(newData);
   }
 
 
