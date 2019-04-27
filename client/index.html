@@ -86,9 +86,6 @@
             <h3>Citation results</h3>
           </div>
           <div class="card-body results"></div>
-          <div class="edit-icn">
-            <a><i class="ion-edit icon"></i></a> <a><i class="ion-android-delete icon"></i></a>
-          </div>
           </div>
         </div>
       </div>
@@ -148,11 +145,11 @@
 
 
 
-
+<!-- for multiple results -->
   <button
     type="button"
     id="modalClick"
-    class="btn mt-5 "
+    class="btn mt-5 display-none"
     data-toggle="modal"
     data-target="#exampleModal"
   >
@@ -206,6 +203,111 @@
       </div>
     </div>
   </div>
+</div>
+
+
+
+
+
+
+  <!-- for editing results -->
+  <button
+      id="editM"
+      type="button"
+      class="btn mt-5 display-none"
+      data-toggle="modal"
+      data-target="#exampleModal-1"
+    >
+      edit-result
+    </button>
+
+    <!-- Modal -->
+    <div
+      class="modal fade"
+      id="exampleModal-1"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="exampleModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog " role="document">
+        <div class="modal-content text-center">
+          <div class="modal-header text-center">
+            <h5 class="modal-title ml-3" id="exampleModalLabel">
+              Edit
+            </h5>
+            <button
+              type="button"
+              class="close"
+              data-dismiss="modal"
+              aria-label="Close"
+            >
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="container">
+          <div class="modal-body">
+            <div class="row mb-3 form-class">
+              <form class="edit-form">
+                <!-- <div class="form-row mt-5">
+                  <div class="form-group col-md-6">
+                    <input type="text" class="form-control" id="author" placeholder="Author Name">
+                  </div>
+                  <div class="form-group col-md-6">
+                    <input type="text" class="form-control" id="title" placeholder="Title">
+                  </div>
+                </div> -->
+
+                <!-- <div class="form-group">
+                  <input type="text" class="form-control" id="inputAddress" placeholder="Editor">
+                </div>
+
+                <div class="form-group">
+                  <input type="text" class="form-control" id="inputAddress" placeholder="Publisher">
+                </div>
+                <div class="form-group">
+
+                  <input type="text" class="form-control" id="inputAddress" placeholder="Date">
+                </div>
+                <div class="form-group">
+
+                  <input type="text" class="form-control" id="inputAddress" placeholder="Pages">
+                </div>
+                <div class="form-group">
+
+                  <input type="text" class="form-control" id="inputAddress" placeholder="URL">
+                </div>
+
+                <div class="form-group">
+                  <div class="form-group">
+
+                    <input type="text" class="form-control" id="inputAddress" placeholder="Rights">
+                  </div>
+                </div>
+ -->
+
+              </form>
+              
+                
+            </div>
+          </div>
+          </div>
+           
+          <div class="modal-footer">
+            <button class="edit-it btn float-right">Edit</button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
 
   </body>
 
@@ -215,7 +317,4 @@
   <script src="./js/Popper.js"></script>
   <script src="./js/bootstrap.js"></script>
   <script src="./js/main.js"></script>
-
-
-
 </html>

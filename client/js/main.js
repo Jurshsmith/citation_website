@@ -1,7 +1,4 @@
 $(document).ready(() => {
-    //CLEAR local storage -- dangerous
-    // localStorage.clear();
-
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
 
@@ -13,23 +10,20 @@ $(document).ready(() => {
 
     //add event listeners here
     (() => {
+  
       //1
-      $(".result").click(function (e) {
-        // const id = $(this).html();
-        // console.log($(this).html());
-        // console.log(e);
-      });
-
-
-      //2
       $(".j-overlay").click(() => {
-        //reset display none to default
         //register all dynamic show and hide elements here
         $(".edit-citation").addClass("display-none");
         $(".multiple").addClass("display-none");
         $(".j-overlay").addClass("display-none");
-
       });
+
+
+      //2
+      $("#searchEntry").on('keypress', e => e.which === 13 ? citate(): null);
+
+      
     })();
 
    
@@ -39,51 +33,96 @@ $(document).ready(() => {
 
 
 
-
-
-
-
-
   //all functions
+
   function editCitation(id){
     console.log(id);
-
-    //show editable and alter data there
-    $('.j-overlay').removeClass('display-none');
-    $('.edit-citation').removeClass('display-none');
-
+    $("#editM").click();
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
 
-    console.log(prevData.filter(d => d.output === id));
+    //use current data as edit form
+    console.log(prevData.filter(d => d.key === id));
+
+    const currentCitation = prevData.filter(d => d.key === id)[0];
+
+    const editForm = $(".edit-form");
+
+    //empty first
+    editForm.html("");
+
+    $.each(currentCitation, key => {
+       const blackListedKeys = ["output", "key", "tags"];
+
+       if (blackListedKeys.filter(a => a === key).length === 0){
+        switch(currentCitation[key].constructor){
+            case Array: 
+                console.log("an array");
+                currentCitation[key].forEach(k => {
+                    $.each(k, l => {
+                        if (k[l] !== "author"){
+                            const template = `<input type="text" class="form-control ${l}" 
+                            placeholder="${l}"
+                            value="${k[l]}">`; 
+                            $('<div class="form-group"/>').html(template).appendTo(editForm);
+                        }  
+                    });
+                    
+                });
+                break;
+            case Object:
+                console.log("an object");
+                break;
+            case String:{
+                console.log("strings, yes!");
+                const template = `<input type="text" class="form-control" 
+                id="${key}" 
+                placeholder="${key}"
+                value="${currentCitation[key]}">`; 
+                $('<div class="form-group"/>').html(template).appendTo(editForm);
+                break;
+            }
+        }
+       }
+
+
+
+        
+
+
+    });
+
+
+    
+
+    (() => {
+        $(".edit-it").click(() => {
+            //listen for edit events
+            //and edit
+            console.log('Edit clicked');
+            console.log("id is ", id);
+        });
+    })(id)
   }
 
   function deleteCitation(id){
     console.log(id);
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
-
     const newData = prevData.filter(d => d.key !== id);
-
     updateData(newData);
-    
-
   }
 
 
 
   function updateData(data){
-
     localStorage.setItem('cw_data', JSON.stringify(data));
-
     $('.results').html("");
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
-
     prevData.forEach(data => {
       $('<div/>').html(`${data.output}`).appendTo($('.results'));
     });
-
   }
 
 
@@ -100,15 +139,10 @@ $(document).ready(() => {
   function storeLocally(data, output){
     //get from storage first
     const prevData = JSON.parse(localStorage.getItem('cw_data')) || [];
-
     prevData.push({...data, output});
-
     //store in local storage
     localStorage.setItem('cw_data', JSON.stringify(prevData));
   }
-
-
-
 
 
 
@@ -117,8 +151,7 @@ $(document).ready(() => {
     $("#modalC").click();
     $("#searchEntry").val('');
     $("#searchEntry").val(id);
-    citate();
-    
+    citate(); 
   }
 
   function citate() {
@@ -128,8 +161,8 @@ $(document).ready(() => {
     
     //sets loading true
     setLoading(true);
-
-    fetch(`/api/search?searchEntry=${searchEntry}`)
+    if (searchEntry){
+        fetch(`/api/search?searchEntry=${searchEntry}`)
       .then(res => {
         console.log(res);
         return res.json();
@@ -148,9 +181,8 @@ $(document).ready(() => {
 
           //if not empty
           if (data.multiple) {
+              
             $('#modalClick').click();
-          // $(".j-overlay").removeClass("display-none");
-          // $(".multiple").removeClass("display-none");
           
           const cList = $(".multi");
           cList.html("");
@@ -158,8 +190,7 @@ $(document).ready(() => {
 
 
             const eachItem = $(`<div onClick="citateMulti(${i})"/>`)
-                .addClass(`col select-con`)
-              
+                .addClass(`col select-con`)              
                 .html(
                   `<div class="modal-con">
                 <div>
@@ -169,25 +200,26 @@ $(document).ready(() => {
                     <h4 class="ml-4">${data.items[i].title}</h4>
                     <p>${data.items[i].description}</p>
                     <p>Type: ${data.items[i].itemType}</p>
-                </div>
-                  
-                </div>`
-                )
-                
+                </div>  
+                </div>`)
                 .addClass(`call-${i}`)
                 .appendTo(cList);
             });
           }
 
+          
+            
+
           if (!data.multiple) {
             let newOutput = `<div class="result">${data.output}
-            <button class="btn" id="edit-${data._d.key}" onClick="editCitation('${data._d.key}')">Edit</button>
-            <button class="btn" id="delete-${data._d.key}" onClick="deleteCitation('${data._d.key}')">Delete</button></div>`;
+            <span style="padding: 6px; cursor: pointer" id="edit-${data._d.key}" onClick="editCitation('${data._d.key}')"><i class="ion-edit icon"></i></span> 
+            <span style="padding: 6px; cursor: pointer" id="delete-${data._d.key}" onClick="deleteCitation('${data._d.key}')"><i class="ion-android-delete icon"></i></span>`;
 
             storeLocally(data._d, newOutput);
 
             $('<div/>').html(newOutput).appendTo($('.results'))
 
+            $("#searchEntry").val('');
           } 
 
 
@@ -201,4 +233,10 @@ $(document).ready(() => {
         setLoading(false);
          //show error html with display none and all
       });
+    } else {
+        //sets loading true
+        setLoading(false);
+    }
+     
+
   }
